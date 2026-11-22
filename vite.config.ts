@@ -1,0 +1,40 @@
+import devServer from "@hono/vite-dev-server"
+import path from "path"
+const __dirname = import.meta.dirname
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+import { inspectAttr } from 'kimi-plugin-inspect-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    {
+      name: "kimi-preview-host",
+      config(config) {
+        const hosts = config.server?.allowedHosts;
+        if (hosts === true || hosts?.includes("8080.proxy.internal")) return;
+        return { server: { allowedHosts: ["8080.proxy.internal"] } };
+      },
+    },
+    devServer({ entry: "api/boot.ts", exclude: [/^\/(?!api\/).*$/] }),
+    inspectAttr(), react()],
+  server: {
+    port: 8080,
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@contracts": path.resolve(__dirname, "./contracts"),
+      "@db": path.resolve(__dirname, "./db"),
+      "db": path.resolve(__dirname, "./db"),
+    },
+  },
+  envDir: path.resolve(__dirname),
+  css: {
+    transformer: "postcss",
+  },
+  build: {
+    outDir: path.resolve(__dirname, "dist/public"),
+    emptyOutDir: true,
+  },
+});
