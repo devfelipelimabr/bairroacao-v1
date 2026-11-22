@@ -62,7 +62,7 @@ export const postRouter = createRouter({
         photo: input.photo ?? null,
         valid: input.valid ?? null,
       };
-      const result = await db.insert(posts).values(base).$returningId();
+      const result = await db.insert(posts).values(base).returning({ id: posts.id });
       return { id: result[0].id };
     }),
 

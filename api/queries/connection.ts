@@ -1,4 +1,5 @@
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import Database from "better-sqlite3";
 import { env } from "../lib/env";
 import * as schema from "@db/schema";
 import * as relations from "@db/relations";
@@ -10,14 +11,11 @@ let instance: ReturnType<typeof drizzle<typeof fullSchema>>;
 
 export function getDb() {
   if (!instance) {
-    if (!env.databaseUrl) {
-      log.error("[db] DATABASE_URL is not configured. The app will not be able to persist data.");
-      throw new Error("Database not configured. Please set DATABASE_URL in environment variables.");
-    }
-    instance = drizzle(env.databaseUrl, {
-      mode: "planetscale",
-      schema: fullSchema,
-    });
+    const dbPath = env.databaseUrl || "./data/bairroacao.sqlite";
+    const client = new Database(dbPath);
+    client.pragma("journal_mode = WAL");
+    instance = drizzle(client, { schema: fullSchema });
+    log.info(`[db] SQLite connected at ${dbPath}`);
   }
   return instance;
 }

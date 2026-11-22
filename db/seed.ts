@@ -1,3 +1,4 @@
+import { mkdirSync } from "fs";
 import { getDb } from "../api/queries/connection";
 import { neighborhoods, posts } from "./schema";
 
@@ -8,7 +9,7 @@ async function seed() {
   const hoods = await db.insert(neighborhoods).values([
     { name: "Vila Aurora", city: "São Paulo", state: "SP", active: true, minUsers: 30, usersCount: 47 },
     { name: "Vila Matilde", city: "São Paulo", state: "SP", active: false, minUsers: 30, usersCount: 14 },
-  ]).$returningId();
+  ]).returning({ id: neighborhoods.id });
 
   const vilaAuroraId = hoods[0].id;
 
@@ -84,6 +85,13 @@ async function seed() {
 
   console.log("Done.");
   process.exit(0);
+}
+
+// Ensure data directory exists
+try {
+  mkdirSync("./data", { recursive: true });
+} catch {
+  // already exists
 }
 
 seed();

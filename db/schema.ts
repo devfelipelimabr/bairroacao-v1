@@ -1,91 +1,83 @@
+import { sql } from "drizzle-orm";
 import {
-  mysqlTable,
-  mysqlEnum,
-  serial,
-  bigint,
-  varchar,
+  sqliteTable,
+  integer,
   text,
-  int,
-  boolean,
-  timestamp,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/sqlite-core";
 
-export const users = mysqlTable("users", {
-  id: serial("id").primaryKey(),
-  unionId: varchar("unionId", { length: 255 }).notNull().unique(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 320 }),
+export const users = sqliteTable("users", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  unionId: text("unionId").notNull().unique(),
+  name: text("name"),
+  email: text("email"),
   avatar: text("avatar"),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
-  primaryNeighborhoodId: bigint("primaryNeighborhoodId", { mode: "number", unsigned: true }),
-  reputationScore: int("reputationScore").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
-  lastSignInAt: timestamp("lastSignInAt").defaultNow().notNull(),
+  role: text("role", { enum: ["user", "admin"] }).default("user").notNull(),
+  primaryNeighborhoodId: integer("primaryNeighborhoodId", { mode: "number" }),
+  reputationScore: integer("reputationScore", { mode: "number" }).default(0).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull().$onUpdate(() => new Date()),
+  lastSignInAt: integer("lastSignInAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 
-export const neighborhoods = mysqlTable("neighborhoods", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  city: varchar("city", { length: 255 }).notNull(),
-  state: varchar("state", { length: 2 }).notNull(),
-  active: boolean("active").default(true).notNull(),
-  minUsers: int("minUsers").default(30).notNull(),
-  usersCount: int("usersCount").default(0).notNull(),
+export const neighborhoods = sqliteTable("neighborhoods", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  active: integer("active", { mode: "boolean" }).default(true).notNull(),
+  minUsers: integer("minUsers", { mode: "number" }).default(30).notNull(),
+  usersCount: integer("usersCount", { mode: "number" }).default(0).notNull(),
 });
 
-export const neighborhoodUsers = mysqlTable("neighborhood_users", {
-  id: serial("id").primaryKey(),
-  userId: bigint("userId", { mode: "number", unsigned: true }).notNull(),
-  neighborhoodId: bigint("neighborhoodId", { mode: "number", unsigned: true }).notNull(),
-  isPrimary: boolean("isPrimary").default(false).notNull(),
-  isObserver: boolean("isObserver").default(false).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const neighborhoodUsers = sqliteTable("neighborhood_users", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  userId: integer("userId", { mode: "number" }).notNull(),
+  neighborhoodId: integer("neighborhoodId", { mode: "number" }).notNull(),
+  isPrimary: integer("isPrimary", { mode: "boolean" }).default(false).notNull(),
+  isObserver: integer("isObserver", { mode: "boolean" }).default(false).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 
-export const posts = mysqlTable("posts", {
-  id: serial("id").primaryKey(),
-  type: mysqlEnum("type", ["issue", "proposal", "alert", "service"]).notNull(),
-  category: varchar("category", { length: 100 }).notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
+export const posts = sqliteTable("posts", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  type: text("type", { enum: ["issue", "proposal", "alert", "service"] }).notNull(),
+  category: text("category").notNull(),
+  title: text("title").notNull(),
   description: text("description"),
-  status: mysqlEnum("status", ["Aberto", "Confirmado", "Em andamento", "Resolvido"]).default("Aberto").notNull(),
-  confirms: int("confirms").default(0).notNull(),
-  comments: int("comments").default(0).notNull(),
-  dist: int("dist").default(0).notNull(),
-  x: int("x").default(0).notNull(),
-  y: int("y").default(0).notNull(),
-  authorId: bigint("authorId", { mode: "number", unsigned: true }).notNull(),
-  neighborhoodId: bigint("neighborhoodId", { mode: "number", unsigned: true }).notNull(),
-  coords: varchar("coords", { length: 100 }).notNull(),
+  status: text("status", { enum: ["Aberto", "Confirmado", "Em andamento", "Resolvido"] }).default("Aberto").notNull(),
+  confirms: integer("confirms", { mode: "number" }).default(0).notNull(),
+  comments: integer("comments", { mode: "number" }).default(0).notNull(),
+  dist: integer("dist", { mode: "number" }).default(0).notNull(),
+  x: integer("x", { mode: "number" }).default(0).notNull(),
+  y: integer("y", { mode: "number" }).default(0).notNull(),
+  authorId: integer("authorId", { mode: "number" }).notNull(),
+  neighborhoodId: integer("neighborhoodId", { mode: "number" }).notNull(),
+  coords: text("coords").notNull(),
   photo: text("photo"),
-  valid: varchar("valid", { length: 100 }),
-  blur: boolean("blur").default(false).notNull(),
-  proof: boolean("proof").default(false).notNull(),
-  rating: varchar("rating", { length: 100 }),
-  apoio: int("apoio").default(0).notNull(),
-  contra: int("contra").default(0).notNull(),
-  quorum: int("quorum").default(30).notNull(),
-  deadline: varchar("deadline", { length: 100 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  valid: text("valid"),
+  blur: integer("blur", { mode: "boolean" }).default(false).notNull(),
+  proof: integer("proof", { mode: "boolean" }).default(false).notNull(),
+  rating: text("rating"),
+  apoio: integer("apoio", { mode: "number" }).default(0).notNull(),
+  contra: integer("contra", { mode: "number" }).default(0).notNull(),
+  quorum: integer("quorum", { mode: "number" }).default(30).notNull(),
+  deadline: text("deadline"),
+  createdAt: integer("createdAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 
-export const postConfirmations = mysqlTable("post_confirmations", {
-  id: serial("id").primaryKey(),
-  postId: bigint("postId", { mode: "number", unsigned: true }).notNull(),
-  userId: bigint("userId", { mode: "number", unsigned: true }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const postConfirmations = sqliteTable("post_confirmations", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  postId: integer("postId", { mode: "number" }).notNull(),
+  userId: integer("userId", { mode: "number" }).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 
-export const postVotes = mysqlTable("post_votes", {
-  id: serial("id").primaryKey(),
-  postId: bigint("postId", { mode: "number", unsigned: true }).notNull(),
-  userId: bigint("userId", { mode: "number", unsigned: true }).notNull(),
-  side: mysqlEnum("side", ["apoio", "contra"]).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const postVotes = sqliteTable("post_votes", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  postId: integer("postId", { mode: "number" }).notNull(),
+  userId: integer("userId", { mode: "number" }).notNull(),
+  side: text("side", { enum: ["apoio", "contra"] }).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 
 export type User = typeof users.$inferSelect;
