@@ -1,7 +1,13 @@
 import { execSync } from "child_process";
 import { existsSync, mkdirSync } from "fs";
+import { createRequire } from "module";
 
 process.env.NODE_ENV = "production";
+
+console.log("[start] Node version:", process.version);
+console.log("[start] Platform:", process.platform);
+console.log("[start] Architecture:", process.arch);
+console.log("[start] CWD:", process.cwd());
 
 // Ensure data directory exists for SQLite
 const dbDir = "./data";
@@ -17,7 +23,8 @@ if (!existsSync(dbDir)) {
 // Try to import better-sqlite3 first; if it fails (native module mismatch),
 // rebuild it in the current environment.
 try {
-  const { default: Database } = await import("better-sqlite3");
+  const require = createRequire(import.meta.url);
+  const Database = require("better-sqlite3");
   const test = new Database(":memory:");
   test.close();
   console.log("[start] better-sqlite3 native module OK");
