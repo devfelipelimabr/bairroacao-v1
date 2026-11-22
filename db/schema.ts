@@ -15,7 +15,7 @@ export const users = sqliteTable("users", {
   primaryNeighborhoodId: integer("primaryNeighborhoodId", { mode: "number" }),
   reputationScore: integer("reputationScore", { mode: "number" }).default(0).notNull(),
   createdAt: integer("createdAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
-  updatedAt: integer("updatedAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull().$onUpdate(() => new Date()),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
   lastSignInAt: integer("lastSignInAt", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
 });
 
