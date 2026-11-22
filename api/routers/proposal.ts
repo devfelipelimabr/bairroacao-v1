@@ -4,11 +4,12 @@ import { createRouter, publicQuery, authedQuery } from "../middleware";
 import { getDb } from "../queries/connection";
 import { posts, postVotes } from "@db/schema";
 
+
 export const proposalRouter = createRouter({
   list: publicQuery
     .input(z.object({ neighborhoodId: z.number().positive().optional() }).optional())
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
       const nid = input?.neighborhoodId;
       const rows = nid
         ? await db.select().from(posts).where(eq(posts.type, "proposal")).then((r) => r.filter((p) => p.neighborhoodId === nid))
@@ -19,7 +20,7 @@ export const proposalRouter = createRouter({
   vote: authedQuery
     .input(z.object({ postId: z.number().positive(), side: z.enum(["apoio", "contra"]) }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb();
       const existing = await db
         .select()
         .from(postVotes)
@@ -50,7 +51,7 @@ export const proposalRouter = createRouter({
     }),
 
   myVotes: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = await getDb();
     const rows = await db.select().from(postVotes).where(eq(postVotes.userId, ctx.user.id));
     return Object.fromEntries(rows.map((r) => [r.postId, r.side]));
   }),
@@ -58,7 +59,7 @@ export const proposalRouter = createRouter({
   ranking: publicQuery
     .input(z.object({ neighborhoodId: z.number().positive().optional() }).optional())
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
       const nid = input?.neighborhoodId;
       const rows = nid
         ? await db.select().from(posts).where(eq(posts.type, "issue")).then((r) => r.filter((p) => p.neighborhoodId === nid))

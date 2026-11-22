@@ -8,7 +8,7 @@ export const dossieRouter = createRouter({
   generate: publicQuery
     .input(z.object({ neighborhoodId: z.number().positive() }))
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
       const hood = await db
         .select()
         .from(neighborhoods)

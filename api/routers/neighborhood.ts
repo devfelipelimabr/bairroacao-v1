@@ -6,14 +6,14 @@ import { neighborhoods, users } from "@db/schema";
 
 export const neighborhoodRouter = createRouter({
   list: publicQuery.query(async () => {
-    const db = getDb();
+    const db = await getDb();
     return db.select().from(neighborhoods);
   }),
 
   setPrimary: authedQuery
     .input(z.object({ neighborhoodId: z.number().positive() }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb();
       await db
         .update(users)
         .set({ primaryNeighborhoodId: input.neighborhoodId })
@@ -22,7 +22,7 @@ export const neighborhoodRouter = createRouter({
     }),
 
   myNeighborhoods: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = await getDb();
     const primary = await db
       .select()
       .from(neighborhoods)

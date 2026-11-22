@@ -14,7 +14,7 @@ export const postRouter = createRouter({
       }).optional()
     )
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
       const i = input ?? { filter: "Todos", sort: "relev" };
       const all = await db.select().from(posts);
       let filtered = all;
@@ -46,7 +46,7 @@ export const postRouter = createRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb();
       const coords = `-23.55${10 + Math.floor(Math.random() * 80)}, -46.68${10 + Math.floor(Math.random() * 80)}`;
       const base = {
         type: input.type,
@@ -69,7 +69,7 @@ export const postRouter = createRouter({
   confirm: authedQuery
     .input(z.object({ postId: z.number().positive() }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb();
       const existing = await db
         .select()
         .from(postConfirmations)
@@ -116,7 +116,7 @@ export const postRouter = createRouter({
     }),
 
   myConfirms: authedQuery.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = await getDb();
     const rows = await db
       .select()
       .from(postConfirmations)

@@ -1,11 +1,13 @@
 import { mkdirSync } from "fs";
+import { dirname } from "path";
 import { getDb } from "../api/queries/connection";
 import { neighborhoods, posts } from "./schema";
 
 async function seed() {
-  const db = getDb();
+  const db = await getDb();
   console.log("Seeding database...");
 
+  // Seed neighborhoods
   const hoods = await db.insert(neighborhoods).values([
     { name: "Vila Aurora", city: "São Paulo", state: "SP", active: true, minUsers: 30, usersCount: 47 },
     { name: "Vila Matilde", city: "São Paulo", state: "SP", active: false, minUsers: 30, usersCount: 14 },
@@ -13,6 +15,7 @@ async function seed() {
 
   const vilaAuroraId = hoods[0].id;
 
+  // Seed posts
   await db.insert(posts).values([
     {
       type: "issue", category: "Asfalto/Buraco",
